@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cvas
+      POSTGRES_PASSWORD: cvas
+      POSTGRES_DB: cvas
+    ports:
+      - "5432:5432"
+    volumes:
+      - cvas_pg_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./uploads:/app/uploads
+    depends_on:
+      - db
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  cvas_pg_data:
